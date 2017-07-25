@@ -1,0 +1,115 @@
+var WebSocketServer = require('websocket').server
+var http = require('http')
+var server = http.createServer(function(request, response) {})
+var connections = []
+var users = []
+var disconnectTimeouts = []
+var userDisconnectTimeout = 10000
+var port = 3000
+server.listen(port, function(req, res) {
+  console.log('['+ new Date().toLocaleString() +']: Server is running on port ' + port)
+})
+wsServer = new WebSocketServer({
+  httpServer: server
+})
+
+wsServer.on('request', function(request) {
+  
+  var connection = request.accept(null, request.origin)
+
+  connection.on('message', function(message) {
+    if (message.type === 'utf8') {
+      var data = JSON.parse(message.utf8Data)
+      switch(data.type) {
+        case 'subscribe':
+          var user_id = users.indexOf(data.user_id)
+          if (user_id === -1) {
+            users.push(data.user_id)
+            console.log('['+ new Date().toLocaleString() +']: 1 user connected')
+            console.log('['+ new Date().toLocaleString() +']: '+users.length+' total user(s) connected')
+          } else {
+              clearTimeout(disconnectTimeouts['user_' + data.user_id])
+              delete disconnectTimeouts['user_' + data.user_id]
+          }
+          request['user_connection'] = connections.push([connection, data.user_id]) - 1
+          request['user_id'] = data.user_id
+          break
+        case 'calling':
+          var callee_id = users.indexOf(data.callee_id)
+          if (callee_id === -1) {
+            var json = JSON.stringify({ type:'user-is-offline', message: 'User is offline' })
+            connection.sendUTF(json)
+          } else {
+            for (var i = 0; i < connections.length; i++) {
+              if (connections[i][1] == data.callee_id) {
+                var json = JSON.stringify({ type:'calling', caller_name: data.caller_name, caller_id: data.caller_id })
+                connections[i][0].sendUTF(json)
+              }
+            }
+            var json = JSON.stringify({ type:'ringing', callee_name: data.callee_name, callee_id: data.callee_id })
+            connection.sendUTF(json)
+          }
+          break
+        case 'accepted':
+          for (var i = 0; i < connections.length; i++) {
+            if (connections[i][1] == data.caller_id) {
+              var json = JSON.stringify({ type:'accepted', callee_id: data.callee_id, callee_name: data.callee_name, caller_id: data.caller_id, caller_name: data.caller_name })
+              connections[i][0].sendUTF(json)
+            }
+          }
+          var json = JSON.stringify({ type:'accepted', callee_id: data.callee_id, callee_name: data.callee_name, caller_id: data.caller_id, caller_name: data.caller_name })
+          connection.sendUTF(json)
+          break
+        case 'rejected':
+          for (var i = 0; i < connections.length; i++) {
+            if (connections[i][1] == data.caller_id) {
+              var json = JSON.stringify({ type:'rejected', message: data.callee_name + ' rejected your call.' })
+              connections[i][0].sendUTF(json)
+            }
+          }
+          break
+        case 'not-answered':
+          for (var i = 0; i < connections.length; i++) {
+            if (connections[i][1] == data.caller_id) {
+              var json = JSON.stringify({ type:'not-answered', message: data.callee_name + ' not answered.' })
+              connections[i][0].sendUTF(json)
+            }
+          }
+          var json = JSON.stringify({ type:'missed-call', message: 'You missed a call from ' + data.caller_name + '.'  })
+          connection.sendUTF(json)
+          break
+        case 'cancelled':
+          for (var i = 0; i < connections.length; i++) {
+            if (connections[i][1] == data.callee_id) {
+              var json = JSON.stringify({ type:'cancelled', message: data.caller_name + ' cancelled call.'   })
+              connections[i][0].sendUTF(json)
+            }
+          }
+          break
+        default:
+          console.log('Server]: Opss... Something\'s wrong here.')
+      }
+      updateActiveUsers()
+    }
+  })
+
+  connection.on('close', function(connection) {
+    connections.splice(request.user_connection, 1)
+    disconnectTimeouts['user_' + request.user_id] = setTimeout(function() {
+      delete disconnectTimeouts['user_' + request.user_id]
+      var user_id = users.indexOf(request.user_id)
+      users.splice(user_id, 1)
+      console.log('['+ new Date().toLocaleString() +']: 1 user disconnected')
+      console.log('['+ new Date().toLocaleString() +']: '+users.length+' total user(s) connected')
+      updateActiveUsers()
+    }, userDisconnectTimeout)
+  })
+
+  function updateActiveUsers(){
+    var json = JSON.stringify({ type:'subscribe', data: users })
+    for (var i = 0; i < connections.length; i++) {
+      connections[i][0].sendUTF(json)
+    }
+  }
+
+})

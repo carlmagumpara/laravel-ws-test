@@ -1,0 +1,18 @@
+.status {
+	border-right: 50%;
+	background-color: gray;
+	float: left;
+	height: 12px; 
+	margin-left: 4px; 
+	width: 12px;
+	margin: 3px 13px 3px 3px;
+}
+.online {
+	background: rgb(66, 183, 42);
+}
+.center {
+	text-align: center;
+}
+.call-buttons {
+	margin-top: 30px;
+}
