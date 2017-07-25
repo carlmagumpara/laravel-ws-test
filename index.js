@@ -5,6 +5,8 @@ var connections = []
 var users = []
 var disconnectTimeouts = []
 var userDisconnectTimeout = 10000
+var callTimeouts = []
+var callWaiting = 10000
 var port = 3000
 server.listen(port, function(req, res) {
   console.log('['+ new Date().toLocaleString() +']: Server is running on port ' + port)
@@ -12,11 +14,10 @@ server.listen(port, function(req, res) {
 wsServer = new WebSocketServer({
   httpServer: server
 })
-
 wsServer.on('request', function(request) {
-  
-  var connection = request.accept(null, request.origin)
 
+  var connection = request.accept(null, request.origin)
+  
   connection.on('message', function(message) {
     if (message.type === 'utf8') {
       var data = JSON.parse(message.utf8Data)
@@ -28,8 +29,8 @@ wsServer.on('request', function(request) {
             console.log('['+ new Date().toLocaleString() +']: 1 user connected')
             console.log('['+ new Date().toLocaleString() +']: '+users.length+' total user(s) connected')
           } else {
-              clearTimeout(disconnectTimeouts['user_' + data.user_id])
-              delete disconnectTimeouts['user_' + data.user_id]
+            clearTimeout(disconnectTimeouts['user_' + data.user_id])
+            delete disconnectTimeouts['user_' + data.user_id]
           }
           request['user_connection'] = connections.push([connection, data.user_id]) - 1
           request['user_id'] = data.user_id
@@ -40,6 +41,9 @@ wsServer.on('request', function(request) {
             var json = JSON.stringify({ type:'user-is-offline', message: 'User is offline' })
             connection.sendUTF(json)
           } else {
+            
+            console.log('['+ new Date().toLocaleString() +'] Calling: Caller: ' +data.caller_id+ ' & Callee: '+ data.callee_id)
+
             for (var i = 0; i < connections.length; i++) {
               if (connections[i][1] == data.callee_id) {
                 var json = JSON.stringify({ type:'calling', caller_name: data.caller_name, caller_id: data.caller_id })
@@ -48,9 +52,29 @@ wsServer.on('request', function(request) {
             }
             var json = JSON.stringify({ type:'ringing', callee_name: data.callee_name, callee_id: data.callee_id })
             connection.sendUTF(json)
+            callTimeouts['user_' + data.caller_id] =  setTimeout(function(){
+
+              console.log('['+ new Date().toLocaleString() +'] Not Answered: Caller: ' +data.caller_id+ ' & Callee: '+ data.callee_id)
+
+              for (var i = 0; i < connections.length; i++) {
+                if (connections[i][1] == data.callee_id) {
+                  var json = JSON.stringify({ type:'missed-call', message: 'You missed a call from ' + data.caller_name + '.'  })
+                  connections[i][0].sendUTF(json)
+                }
+              }
+              var json = JSON.stringify({ type:'not-answered', message: data.callee_name + ' not answered.' })
+              connection.sendUTF(json)
+              clearTimeout(callTimeouts['user_' + data.caller_id])
+              delete callTimeouts['user_' + data.caller_id]
+            }, callWaiting)
           }
           break
-        case 'accepted':
+        case 'accepted':   
+
+          console.log('['+ new Date().toLocaleString() +'] Accepted: Caller: ' +data.caller_id+ ' & Callee: '+ data.callee_id)
+
+          clearTimeout(callTimeouts['user_' + data.caller_id])
+          delete callTimeouts['user_' + data.caller_id]
           for (var i = 0; i < connections.length; i++) {
             if (connections[i][1] == data.caller_id) {
               var json = JSON.stringify({ type:'accepted', callee_id: data.callee_id, callee_name: data.callee_name, caller_id: data.caller_id, caller_name: data.caller_name })
@@ -61,6 +85,11 @@ wsServer.on('request', function(request) {
           connection.sendUTF(json)
           break
         case 'rejected':
+
+          console.log('['+ new Date().toLocaleString() +'] Rejected: Caller: ' +data.caller_id+ ' & Callee: '+ data.callee_id)
+
+          clearTimeout(callTimeouts['user_' + data.caller_id])
+          delete callTimeouts['user_' + data.caller_id]
           for (var i = 0; i < connections.length; i++) {
             if (connections[i][1] == data.caller_id) {
               var json = JSON.stringify({ type:'rejected', message: data.callee_name + ' rejected your call.' })
@@ -68,17 +97,12 @@ wsServer.on('request', function(request) {
             }
           }
           break
-        case 'not-answered':
-          for (var i = 0; i < connections.length; i++) {
-            if (connections[i][1] == data.caller_id) {
-              var json = JSON.stringify({ type:'not-answered', message: data.callee_name + ' not answered.' })
-              connections[i][0].sendUTF(json)
-            }
-          }
-          var json = JSON.stringify({ type:'missed-call', message: 'You missed a call from ' + data.caller_name + '.'  })
-          connection.sendUTF(json)
-          break
         case 'cancelled':
+
+          console.log('['+ new Date().toLocaleString() +'] Cancelled: Caller: ' +data.caller_id+ ' & Callee: '+ data.callee_id)
+
+          clearTimeout(callTimeouts['user_' + data.caller_id])
+          delete callTimeouts['user_' + data.caller_id]
           for (var i = 0; i < connections.length; i++) {
             if (connections[i][1] == data.callee_id) {
               var json = JSON.stringify({ type:'cancelled', message: data.caller_name + ' cancelled call.'   })

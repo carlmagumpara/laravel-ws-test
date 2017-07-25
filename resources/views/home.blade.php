@@ -138,17 +138,7 @@ $(document).ready(function(){
         $('#defaultModal').modal('hide')
         $('#user-caller').text(json.caller_name)
         $('.accept-button').attr('caller-id', json.caller_id).attr('caller-name', json.caller_name)
-        $('.reject-button').attr('caller-id', json.caller_id)
-        callTimeout =  setTimeout(function(){
-          var data = {
-            type: 'not-answered',
-            caller_id: json.caller_id,
-            caller_name: json.caller_name,
-            callee_id: '{{ Auth::user()->id }}',
-            callee_name: '{{ Auth::user()->name }}'
-          }
-          connection.send(JSON.stringify(data))
-        }, 10000)
+        $('.reject-button').attr('caller-id', json.caller_id).attr('caller-name', json.caller_name)
         break;
       case 'ringing':
         $('#callingSignal')[0].play()
@@ -185,7 +175,6 @@ $(document).ready(function(){
         $('#messageInfo').text(json.message)
         break;
       case 'cancelled':
-        clearTimeout(callTimeout)
         $('#ringtoneSignal')[0].pause()
         $('#calleeModal').modal('hide')
         $('#defaultModal').modal('show')
@@ -211,7 +200,6 @@ $(document).ready(function(){
 
   $('.accept-button').click(function(){
     $('#ringtoneSignal')[0].pause()
-    clearTimeout(callTimeout)
     var caller_id = $(this).attr('caller-id')
     var caller_name = $(this).attr('caller-name')
     var data = {
@@ -226,11 +214,12 @@ $(document).ready(function(){
 
   $('.reject-button').click(function(){
     $('#ringtoneSignal')[0].pause()
-    clearTimeout(callTimeout)
     var caller_id = $(this).attr('caller-id')
+    var caller_name = $(this).attr('caller-name')
     var data = {
       type: 'rejected',
       caller_id: caller_id,
+      callee_id: '{{ Auth::user()->id }}',
       callee_name: '{{ Auth::user()->name }}'
     }
     connection.send(JSON.stringify(data)) 
@@ -242,6 +231,7 @@ $(document).ready(function(){
     var data = {
       type: 'cancelled',
       callee_id: callee_id,
+      caller_id: '{{ Auth::user()->id }}',
       caller_name: '{{ Auth::user()->name }}'
     }
     connection.send(JSON.stringify(data)) 
