@@ -99,6 +99,7 @@ $(document).ready(function(){
   window.WebSocket = window.WebSocket || window.MozWebSocket
   var connection = new WebSocket('ws://localhost:3000')
   var callTimeout;
+  var title = $('title').text()
 
   if (!window.WebSocket) {
     console.log('Sorry, but your browser doesn\'t support WebSocket.')
@@ -133,6 +134,7 @@ $(document).ready(function(){
         }
         break;
       case 'calling':
+        $('title').text(json.caller_name+' is calling...')
         $('#ringtoneSignal')[0].play()
         $('#calleeModal').modal('show')
         $('#defaultModal').modal('hide')
@@ -154,7 +156,8 @@ $(document).ready(function(){
       case 'accepted':
         $('#callingSignal')[0].pause()
         $('#callerModal').modal('hide')
-        console.log(json)
+        // console.log(json)
+        console.log('Call Accepted')
         break;
       case 'rejected':
         $('#callingSignal')[0].pause()
@@ -169,12 +172,14 @@ $(document).ready(function(){
         $('#messageInfo').text(json.message)
         break;
       case 'missed-call':
+        $('title').text(title)
         $('#ringtoneSignal')[0].pause()
         $('#calleeModal').modal('hide')
         $('#defaultModal').modal('show')
         $('#messageInfo').text(json.message)
         break;
       case 'cancelled':
+        $('title').text(title)
         $('#ringtoneSignal')[0].pause()
         $('#calleeModal').modal('hide')
         $('#defaultModal').modal('show')
@@ -199,6 +204,7 @@ $(document).ready(function(){
   })
 
   $('.accept-button').click(function(){
+    $('title').text(title)
     $('#ringtoneSignal')[0].pause()
     var caller_id = $(this).attr('caller-id')
     var caller_name = $(this).attr('caller-name')
@@ -213,6 +219,7 @@ $(document).ready(function(){
   })
 
   $('.reject-button').click(function(){
+    $('title').text(title)
     $('#ringtoneSignal')[0].pause()
     var caller_id = $(this).attr('caller-id')
     var caller_name = $(this).attr('caller-name')

@@ -4,9 +4,9 @@ var server = http.createServer(function(request, response) {})
 var connections = []
 var users = []
 var disconnectTimeouts = []
-var userDisconnectTimeout = 10000
+var userDisconnectTimeout = 10000 // 10 Seconds
 var callTimeouts = []
-var callWaiting = 10000
+var callWaiting = 30000 // 30 seconds
 var port = 3000
 server.listen(port, function(req, res) {
   console.log('['+ new Date().toLocaleString() +']: Server is running on port ' + port)
@@ -26,8 +26,8 @@ wsServer.on('request', function(request) {
           var user_id = users.indexOf(data.user_id)
           if (user_id === -1) {
             users.push(data.user_id)
-            console.log('['+ new Date().toLocaleString() +']: 1 user connected')
-            console.log('['+ new Date().toLocaleString() +']: '+users.length+' total user(s) connected')
+            console.log('['+ new Date().toLocaleString() +'] Connection: 1 user connected')
+            console.log('['+ new Date().toLocaleString() +'] Connection: '+users.length+' total user(s) connected')
           } else {
             clearTimeout(disconnectTimeouts['user_' + data.user_id])
             delete disconnectTimeouts['user_' + data.user_id]
@@ -38,6 +38,9 @@ wsServer.on('request', function(request) {
         case 'calling':
           var callee_id = users.indexOf(data.callee_id)
           if (callee_id === -1) {
+
+            console.log('['+ new Date().toLocaleString() +'] Offline: Caller: ' +data.caller_id+ ' & Callee: '+ data.callee_id)
+
             var json = JSON.stringify({ type:'user-is-offline', message: 'User is offline' })
             connection.sendUTF(json)
           } else {
@@ -123,8 +126,8 @@ wsServer.on('request', function(request) {
       delete disconnectTimeouts['user_' + request.user_id]
       var user_id = users.indexOf(request.user_id)
       users.splice(user_id, 1)
-      console.log('['+ new Date().toLocaleString() +']: 1 user disconnected')
-      console.log('['+ new Date().toLocaleString() +']: '+users.length+' total user(s) connected')
+      console.log('['+ new Date().toLocaleString() +'] Connection: 1 user disconnected')
+      console.log('['+ new Date().toLocaleString() +'] Connection: '+users.length+' total user(s) connected')
       updateActiveUsers()
     }, userDisconnectTimeout)
   })
