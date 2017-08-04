@@ -1,27 +1,18 @@
 {
-  "private": true,
-  "scripts": {
-    "prod": "gulp --production",
-    "dev": "gulp watch"
+  "name": "websockets-vanilla",
+  "version": "1.0.0",
+  "engines": {
+    "node": "6.2.0"
   },
-  "devDependencies": {},
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
     "websocket": "^1.0.24"
-  },
-  "name": "users_log",
-  "description": "<p align=\"center\"><img src=\"https://laravel.com/assets/img/components/logo-laravel.svg\"></p>",
-  "version": "0.0.1",
-  "main": "index.js",
-  "directories": {
-    "test": "tests"
-  },
-  "repository": {
-    "type": "git",
-    "url": "none"
-  },
-  "keywords": [
-    "none"
-  ],
-  "author": "carlmagumpara",
-  "license": "ISC"
+  }
 }
