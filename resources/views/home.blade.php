@@ -97,7 +97,9 @@
 $(document).ready(function(){
     
   window.WebSocket = window.WebSocket || window.MozWebSocket
-  var connection = new WebSocket('ws://localhost:3000')
+  var HOST = location.origin.replace(/^http/,'ws')
+  var connection = new WebSocket(HOST)
+  // var connection = new WebSocket('ws://localhost:3000')
   var callTimeout;
   var title = $('title').text()
 
