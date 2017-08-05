@@ -7,7 +7,7 @@ var disconnectTimeouts = []
 var userDisconnectTimeout = 10000 // 10 Seconds
 var callTimeouts = []
 var callWaiting = 30000 // 30 seconds
-var port = 3000
+var port = process.env.PORT || 3000
 server.listen(port, function(req, res) {
   console.log('['+ new Date().toLocaleString() +']: Server is running on port ' + port)
 })
