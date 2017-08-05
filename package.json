@@ -1,18 +1,25 @@
 {
-  "name": "websockets-vanilla",
-  "version": "1.0.0",
+  "name": "node-js-getting-started",
+  "version": "0.0.1",
+  "description": "A sample Node.js app using Express 4",
   "engines": {
-    "node": "6.2.0"
+    "node": "6.9.2"
   },
-  "description": "",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "websocket": "^1.0.24"
-  }
+    "websocket": "1.0.24"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/heroku/node-js-getting-started"
+  },
+  "keywords": [
+    "node",
+    "heroku",
+    "express"
+  ],
+  "license": "MIT"
 }
