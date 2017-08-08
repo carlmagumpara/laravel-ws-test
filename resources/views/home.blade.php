@@ -33,53 +33,53 @@
             </div>
         </div>
     </div>
-</div>
 
-<div class="modal fade" id="calleeModal" data-controls-modal="calleeModal"  data-backdrop="static" data-keyboard="false">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-body">
-            <h3>
-                <span id="user-caller"></span> is calling...
-            </h3>
-          <div class="center call-buttons">
-            <button type="button" class="btn btn-success accept-button" data-dismiss="modal">Accept</button>
-            <button type="button" class="btn btn-danger reject-button" data-dismiss="modal">Reject</button>
-          </div>
+  <div class="modal fade" id="calleeModal" data-controls-modal="calleeModal"  data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+              <h4>
+                  <span id="user-caller"></span> is calling...
+              </h4>
+            <div class="center call-buttons">
+              <button type="button" class="btn btn-success accept-button btn-sm" data-dismiss="modal">Accept</button>
+              <button type="button" class="btn btn-danger reject-button btn-sm" data-dismiss="modal">Reject</button>
+            </div>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<div class="modal fade" id="callerModal" data-controls-modal="callerModal"  data-backdrop="static" data-keyboard="false">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-body">
-          <h3>
-              Calling <span id="user-callee"></span>...
-          </h3>
-          <div class="center call-buttons">
-            <button type="button" class="btn btn-success cancel-button" data-dismiss="modal">Cancel</button>
-          </div>
+  <div class="modal fade" id="callerModal" data-controls-modal="callerModal"  data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+            <h4>
+                Calling <span id="user-callee"></span>...
+            </h4>
+            <div class="center call-buttons">
+              <button type="button" class="btn btn-success cancel-button btn-sm" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
       </div>
     </div>
   </div>
-</div>
 
-<div class="modal fade" id="defaultModal" data-controls-modal="defaultModal"  data-backdrop="static" data-keyboard="false">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-body">
-            <h3 id="messageInfo">
-            </h3>
-          <div class="center call-buttons">
-            <button type="button" class="btn btn-info" data-dismiss="modal">
-                Ok
-            </button>
-          </div>
+  <div class="modal fade" id="defaultModal" data-controls-modal="defaultModal"  data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog modal-sm" role="document">
+      <div class="modal-content">
+        <div class="modal-body">
+              <h5 id="messageInfo"></h5>
+            <div class="center call-buttons">
+              <button type="button" class="btn btn-info btn-sm" data-dismiss="modal">
+                  Ok
+              </button>
+            </div>
+        </div>
       </div>
     </div>
   </div>
+
 </div>
 
 <audio id="callingSignal" loop>
@@ -98,9 +98,9 @@ $(document).ready(function(){
     
   window.WebSocket = window.WebSocket || window.MozWebSocket
   var HOST = location.origin.replace(/^http/,'ws')
-  var connection = new WebSocket(HOST)
-  // var connection = new WebSocket('ws://localhost:3000')
-  var callTimeout;
+  // var connection = new WebSocket(HOST)
+  var connection = new WebSocket('ws://localhost:3000')
+  var callTimeout
   var title = $('title').text()
 
   if (!window.WebSocket) {

@@ -4,7 +4,7 @@ var server = http.createServer(function(request, response) {})
 var connections = []
 var users = []
 var disconnectTimeouts = []
-var userDisconnectTimeout = 10000 // 10 Seconds
+var userDisconnectTimeout = 8000 // 8 seconds
 var callTimeouts = []
 var callWaiting = 30000 // 30 seconds
 var port = process.env.PORT || 3000
@@ -121,10 +121,10 @@ wsServer.on('request', function(request) {
   })
 
   connection.on('close', function(connection) {
-    connections.splice(request.user_connection, 1)
-    disconnectTimeouts['user_' + request.user_id] = setTimeout(function() {
-      delete disconnectTimeouts['user_' + request.user_id]
-      var user_id = users.indexOf(request.user_id)
+    connections.splice(request['user_connection'], 1)
+    disconnectTimeouts['user_' + request['user_id']] = setTimeout(function() {
+      delete disconnectTimeouts['user_' + request['user_id']]
+      var user_id = users.indexOf(request['user_id'])
       users.splice(user_id, 1)
       console.log('['+ new Date().toLocaleString() +'] Connection: 1 user disconnected')
       console.log('['+ new Date().toLocaleString() +'] Connection: '+users.length+' total user(s) connected')
