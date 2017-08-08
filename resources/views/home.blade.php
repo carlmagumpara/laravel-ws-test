@@ -91,15 +91,12 @@
   <source src="{{ asset('audio/ringtone.ogg') }}"></source>
   <source src="{{ asset('audio/ringtone.mp3') }}"></source>
 </audio>
-
 <script type="text/javascript">
 
 $(document).ready(function(){
     
   window.WebSocket = window.WebSocket || window.MozWebSocket
-  var HOST = location.origin.replace(/^http/,'ws')
-  // var connection = new WebSocket(HOST)
-  var connection = new WebSocket('ws://localhost:3000')
+  var connection = new WebSocket('wss://ws-test-node.herokuapp.com')
   var callTimeout
   var title = $('title').text()
 
