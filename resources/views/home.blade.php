@@ -96,6 +96,7 @@
 $(document).ready(function(){
     
   window.WebSocket = window.WebSocket || window.MozWebSocket
+  // var connection = new WebSocket('ws://localhost:5000')
   var connection = new WebSocket('wss://ws-test-node.herokuapp.com')
   var callTimeout
   var title = $('title').text()
@@ -181,6 +182,11 @@ $(document).ready(function(){
         $('title').text(title)
         $('#ringtoneSignal')[0].pause()
         $('#calleeModal').modal('hide')
+        $('#defaultModal').modal('show')
+        $('#messageInfo').text(json.message)
+        break;
+      case 'user-busy':
+        $('#callerModal').modal('hide')
         $('#defaultModal').modal('show')
         $('#messageInfo').text(json.message)
         break;
