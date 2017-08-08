@@ -189,6 +189,15 @@ $(document).ready(function(){
     }
   }
 
+  $(window).on('beforeunload', function(){
+    if($('#callerModal').hasClass('in')){
+      $('.cancel-button').click();
+    }
+    if($('#calleeModal').hasClass('in')){
+      $('.reject-button').click();
+    }
+  });
+
   $('.call-button').click(function(){
     var callee_id = $(this).attr('callee-id')
     var callee_name = $(this).attr('callee-name')
