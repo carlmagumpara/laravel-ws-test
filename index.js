@@ -33,7 +33,9 @@ wsServer.on('request', function(request) {
             clearTimeout(disconnectTimeouts['user_' + data.user_id])
             delete disconnectTimeouts['user_' + data.user_id]
           }
-          request['user_connection'] = connections.push([connection, data.user_id]) -1
+          var userConnection = [connection, data.user_id]
+          connections.push(userConnection)
+          request['user_connection'] = userConnection
           request['user_id'] = data.user_id
           break
         case 'calling':
@@ -132,14 +134,15 @@ wsServer.on('request', function(request) {
   })
 
   connection.on('close', function(connection) {
-    connections.splice(request['user_connection'], 1)
-    request['stillActive'] = false
+    connections.splice(connections.indexOf(request['user_connection']), 1)
+    var stillActive = false
     for (var i = 0; i < connections.length; i++) {
       if (connections[i][1] == request['user_id']) {
-        request['stillActive'] = true
+        stillActive = true
+        break;
       }
     }
-    if (request['stillActive'] == false) {
+    if (stillActive == false) {
       disconnectTimeouts['user_' + request['user_id']] = setTimeout(function() {
         delete disconnectTimeouts['user_' + request['user_id']]
         var user_id = users.indexOf(request['user_id'])
