@@ -82,14 +82,13 @@
   </div>
 
 
-  <div class="panel panel-danger" id="chat-container">
+  <div class="panel panel-danger hide hide-chat" id="chat-container">
     <div class="panel-heading">
       Chat with <span id="chatee-name"></span>
+      <span class="badge pull-right hide chat-badge">0</span>
     </div>
     <div class="panel-body">
-      <div class="chat-body">
-
-      </div>
+      <div class="chat-body"></div>
     </div>
     <div class="panel-footer">
       <form id="chat-message">
@@ -119,7 +118,7 @@ $(document).ready(function(){
   window.WebSocket = window.WebSocket || window.MozWebSocket
   // var connection = new WebSocket('ws://localhost:5000')
   var connection = new WebSocket('wss://ws-test-node.herokuapp.com')
-  var callTimeout
+  var chatBadge = 0
   var title = $('title').text()
 
   if (!window.WebSocket) {
@@ -217,11 +216,26 @@ $(document).ready(function(){
           html = '<div class="row chat-item"> <div class="col-md-12 col-xs-12"> <h6>You</h6> <div class="chat-message"> <small>'+json.message+'</small> </div></div></div>'
           $('#chat-user-' + json.chatee_id).append(html)
           $('#chat-user-' + json.chatee_id).animate({ scrollTop: $(document).height() }, "slow");
+          if ($('#chat-container').hasClass('hide-chat')) {
+            chatBadge = chatBadge + 1
+            $('.chat-badge').html(chatBadge).removeClass('hide')
+          }
         }
         if (json.chatee_id == '{{ Auth::user()->id }}') {
+    
+          $('#chatee-name').html(json.chatter_name)
+          $('[name=chatee-name]').val(json.chatter_name)
+          $('[name=chatee-id]').val(json.chatter_id)
+          $('.chat-body').attr('id','chat-user-' + json.chatter_id)
+          $('#chat-container').removeClass('hide')
+
           html = '<div class="row chat-item"> <div class="col-md-2 col-xs-2"> <div class="avatar-container"> <img src="" class="img-responsive avatar"> </div></div><div class="col-md-10 col-xs-10"> <h6>'+json.chatter_name+'</h6> <div class="chat-message"> <small>'+json.message+'</small> </div></div></div>'
           $('#chat-user-' +json.chatter_id).append(html)
           $('#chat-user-' + json.chatter_id).animate({ scrollTop: $(document).height() }, "slow");
+          if ($('#chat-container').hasClass('hide-chat')) {
+            chatBadge = chatBadge + 1
+            $('.chat-badge').html(chatBadge).removeClass('hide')
+          }
         }
         break
       default:
@@ -292,17 +306,17 @@ $(document).ready(function(){
     connection.send(JSON.stringify(data)) 
   })
 
+  // Chat
 
   $('#chat-container .panel-heading').click(function(){
     if ($('#chat-container').hasClass('hide-chat')) {
       $('#chat-container').removeClass('hide-chat');
+      $('.chat-badge').html('').addClass('hide')
+      chatBadge = 0
     } else {
       $('#chat-container').addClass('hide-chat');
     }
   });
-
-
-  // Chat
 
   $('.chat-button').click(function(){
     var chatee_id = $(this).attr('chatee-id')
@@ -311,6 +325,8 @@ $(document).ready(function(){
     $('[name=chatee-name]').val(chatee_name)
     $('[name=chatee-id]').val(chatee_id)
     $('.chat-body').attr('id','chat-user-' + chatee_id)
+    $('#chat-container').removeClass('hide');
+    $('.chat-body').html('')
   });
 
   $('#chat-message').submit(function(e){

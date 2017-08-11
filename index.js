@@ -5,9 +5,9 @@ var app = express()
 var port = process.env.PORT || 5000
 var connections = []
 var users = []
-var disconnectTimeouts = []
+var disconnectTimeouts = {}
 var userDisconnectTimeout = 8000 // 8 seconds
-var callTimeouts = []
+var callTimeouts = {}
 var callWaiting = 30000 // 30 seconds
 var busyUsers = []
 var server = http.createServer(app)
@@ -47,7 +47,6 @@ wsServer.on('request', function(request) {
             if (user_status === -1) {
               busyUsers.push(data.callee_id)
               busyUsers.push(data.caller_id)
-              console.log(busyUsers)
               console.log('['+ new Date().toLocaleString() +'] Calling: Caller: ' +data.caller_id+ ' & Callee: '+ data.callee_id)
               for (var i = 0; i < connections.length; i++) {
                 if (connections[i][1] == data.callee_id) {
@@ -117,16 +116,13 @@ wsServer.on('request', function(request) {
           }
           break
         case 'message':
+          var json = JSON.stringify({ type:'message', chatee_id: data.chatee_id, chatee_name: data.chatee_name, chatter_id: data.chatter_id, chatter_name: data.chatter_name, message: data.message })
           for (var i = 0; i < connections.length; i++) {
             if (connections[i][1] == data.chatee_id) {
-              var json = JSON.stringify({ type:'message', chatee_id: data.chatee_id, chatee_name: data.chatee_name, chatter_id: data.chatter_id, chatter_name: data.chatter_name, message: data.message })
-              connections[i][0].sendUTF(json)
-            }
-            if (connections[i][1] == data.chatter_id) {
-              var json = JSON.stringify({ type:'message', chatee_id: data.chatee_id, chatee_name: data.chatee_name, chatter_id: data.chatter_id, chatter_name: data.chatter_name, message: data.message })
               connections[i][0].sendUTF(json)
             }
           }
+          connection.sendUTF(json)
         break
         default:
           console.log('[Server]: Opss... Something\'s wrong here.')
@@ -143,7 +139,7 @@ wsServer.on('request', function(request) {
         request['stillActive'] = true
       }
     }
-    if (request['stillActive'] === false) {
+    if (request['stillActive'] == false) {
       disconnectTimeouts['user_' + request['user_id']] = setTimeout(function() {
         delete disconnectTimeouts['user_' + request['user_id']]
         var user_id = users.indexOf(request['user_id'])
