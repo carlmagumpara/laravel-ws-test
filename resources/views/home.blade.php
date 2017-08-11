@@ -80,6 +80,87 @@
     </div>
   </div>
 
+
+  <div class="panel panel-danger" id="chat-container">
+    <div class="panel-heading">
+      Chat with Donald Trump
+      <div class="pull-right">
+        <button class="btn btn-xs btn-danger" id="hide-chat">
+          close
+        </button>
+      </div>
+    </div>
+    <div class="panel-body">
+      <div class="chat-body">
+        
+        <div class="row chat-item">
+          <div class="col-md-2 col-xs-2">
+            <div class="avatar-container">
+              <img src="" class="img-responsive avatar">
+            </div>
+          </div>
+          <div class="col-md-10 col-xs-10">
+            <h6>Donald Trump</h6>
+            <div class="chat-message">
+              <small>
+                HAHAHAHAHAHAHA GAGO KA PUTANGINA MO HAHAHAHAHA
+              </small>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="row chat-item">
+          <div class="col-md-12 col-xs-12">
+            <h6>You</h6>
+            <div class="chat-message">
+              <small>
+                HAHAHAHAHAHAHA GAGO KA PUTANGINA MO HAHAHAHAHA
+              </small>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="row chat-item">
+          <div class="col-md-2 col-xs-2">
+            <div class="avatar-container">
+              <img src="" class="img-responsive avatar">
+            </div>
+          </div>
+          <div class="col-md-10 col-xs-10">
+            <h6>Donald Trump</h6>
+            <div class="chat-message">
+              <small>
+                HAHAHAHAHAHAHA GAGO KA PUTANGINA MO HAHAHAHAHA
+              </small>
+            </div>
+          </div>
+        </div>
+
+
+        <div class="row chat-item">
+          <div class="col-md-12 col-xs-12">
+            <h6>You</h6>
+            <div class="chat-message">
+              <small>
+                HAHAHAHAHAHAHA GAGO KA PUTANGINA MO HAHAHAHAHA
+              </small>
+            </div>
+          </div>
+        </div>
+
+        
+      </div>
+    </div>
+    <div class="panel-footer">
+      <form>
+        <input type="text" class="form-control" name="">
+      </form>
+    </div>
+  </div>
+
+
 </div>
 
 <audio id="callingSignal" loop>
@@ -94,7 +175,17 @@
 <script type="text/javascript">
 
 $(document).ready(function(){
-    
+  
+  $('#hide-chat').click(function(){
+    if ($('#chat-container').hasClass('hide-chat')) {
+      $(this).html('close')
+      $('#chat-container').removeClass('hide-chat');
+    } else {
+      $(this).html('open')
+      $('#chat-container').addClass('hide-chat');
+    }
+  });
+
   window.WebSocket = window.WebSocket || window.MozWebSocket
   // var connection = new WebSocket('ws://localhost:5000')
   var connection = new WebSocket('wss://ws-test-node.herokuapp.com')

@@ -16,3 +16,62 @@
 .call-buttons {
 	margin-top: 30px;
 }
+#chat-container {
+	width: 300px;
+	height: 350px;
+	position: fixed;
+	bottom: 0px;
+	right: 15px;
+	margin-bottom: 0px;
+	transition: 0.5s;
+	-webkit-transition: 0.5s;
+}
+
+.hide-chat {
+	bottom: -307px !important;
+}
+
+#chat-container .panel-heading {
+
+}
+
+#chat-container .panel-body {
+	height: 266px;
+	padding: 0px;
+	background-color: #fff;
+}
+
+#chat-container .panel-footer {
+	padding: 0px;
+}
+
+#chat-container .chat-body {
+	padding: 10px;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	height: 266px;
+}
+
+#chat-container .chat-message {
+	width: 100%;
+	background-color: #eee;
+	padding: 8px;
+	border-radius: 3px;
+}
+
+#chat-container .avatar-container {
+	height: 40px;
+	width: 40px;
+	background-color: red;
+	border-radius: 3px;
+	margin-top: 4px;
+}
+
+#chat-container h6 {
+    margin-top: 3px;
+    margin-bottom: 3px;
+}
+
+#chat-container .chat-item {
+	margin-top: 10px;
+}
