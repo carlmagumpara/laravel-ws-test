@@ -215,23 +215,21 @@ $(document).ready(function(){
         if (json.chatter_id == '{{ Auth::user()->id }}') {
           html = '<div class="row chat-item"> <div class="col-md-12 col-xs-12"> <h6>You</h6> <div class="chat-message"> <small>'+json.message+'</small> </div></div></div>'
           $('#chat-user-' + json.chatee_id).append(html)
-          $('#chat-user-' + json.chatee_id).animate({ scrollTop: $(document).height() }, "slow");
+          $('#chat-user-' + json.chatee_id).animate({ scrollTop:  $('.chat-body')[0].scrollHeight }, 'fast');
           if ($('#chat-container').hasClass('hide-chat')) {
             chatBadge = chatBadge + 1
             $('.chat-badge').html(chatBadge).removeClass('hide')
           }
         }
         if (json.chatee_id == '{{ Auth::user()->id }}') {
-    
           $('#chatee-name').html(json.chatter_name)
           $('[name=chatee-name]').val(json.chatter_name)
           $('[name=chatee-id]').val(json.chatter_id)
           $('.chat-body').attr('id','chat-user-' + json.chatter_id)
           $('#chat-container').removeClass('hide')
-
           html = '<div class="row chat-item"> <div class="col-md-2 col-xs-2"> <div class="avatar-container"> <img src="" class="img-responsive avatar"> </div></div><div class="col-md-10 col-xs-10"> <h6>'+json.chatter_name+'</h6> <div class="chat-message"> <small>'+json.message+'</small> </div></div></div>'
           $('#chat-user-' +json.chatter_id).append(html)
-          $('#chat-user-' + json.chatter_id).animate({ scrollTop: $(document).height() }, "slow");
+          $('#chat-user-' + json.chatter_id).animate({ scrollTop:  $('.chat-body')[0].scrollHeight }, 'fast');
           if ($('#chat-container').hasClass('hide-chat')) {
             chatBadge = chatBadge + 1
             $('.chat-badge').html(chatBadge).removeClass('hide')
