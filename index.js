@@ -116,6 +116,18 @@ wsServer.on('request', function(request) {
             }
           }
           break
+        case 'message':
+          for (var i = 0; i < connections.length; i++) {
+            if (connections[i][1] == data.chatee_id) {
+              var json = JSON.stringify({ type:'message', chatee_id: data.chatee_id, chatee_name: data.chatee_name, chatter_id: data.chatter_id, chatter_name: data.chatter_name, message: data.message })
+              connections[i][0].sendUTF(json)
+            }
+            if (connections[i][1] == data.chatter_id) {
+              var json = JSON.stringify({ type:'message', chatee_id: data.chatee_id, chatee_name: data.chatee_name, chatter_id: data.chatter_id, chatter_name: data.chatter_name, message: data.message })
+              connections[i][0].sendUTF(json)
+            }
+          }
+        break
         default:
           console.log('[Server]: Opss... Something\'s wrong here.')
       }

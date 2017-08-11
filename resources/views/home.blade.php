@@ -16,6 +16,7 @@
                                     </div>
                                     <div class="col-md-3 col-xs-3">
                                     <button class="btn btn-xs btn-block call-button" callee-id="{{ $user->id }}" callee-name="{{ $user->name }}">CALL</button>
+                                    <button class="btn btn-xs btn-block chat-button" chatee-id="{{ $user->id }}" chatee-name="{{ $user->name }}">CHAT</button>
                                     </div>
                                 </div>
                             </li>
@@ -83,79 +84,18 @@
 
   <div class="panel panel-danger" id="chat-container">
     <div class="panel-heading">
-      Chat with Donald Trump
-      <div class="pull-right">
-        <button class="btn btn-xs btn-danger" id="hide-chat">
-          close
-        </button>
-      </div>
+      Chat with <span id="chatee-name"></span>
     </div>
     <div class="panel-body">
       <div class="chat-body">
-        
-        <div class="row chat-item">
-          <div class="col-md-2 col-xs-2">
-            <div class="avatar-container">
-              <img src="" class="img-responsive avatar">
-            </div>
-          </div>
-          <div class="col-md-10 col-xs-10">
-            <h6>Donald Trump</h6>
-            <div class="chat-message">
-              <small>
-                HAHAHAHAHAHAHA GAGO KA PUTANGINA MO HAHAHAHAHA
-              </small>
-            </div>
-          </div>
-        </div>
 
-
-        <div class="row chat-item">
-          <div class="col-md-12 col-xs-12">
-            <h6>You</h6>
-            <div class="chat-message">
-              <small>
-                HAHAHAHAHAHAHA GAGO KA PUTANGINA MO HAHAHAHAHA
-              </small>
-            </div>
-          </div>
-        </div>
-
-
-        <div class="row chat-item">
-          <div class="col-md-2 col-xs-2">
-            <div class="avatar-container">
-              <img src="" class="img-responsive avatar">
-            </div>
-          </div>
-          <div class="col-md-10 col-xs-10">
-            <h6>Donald Trump</h6>
-            <div class="chat-message">
-              <small>
-                HAHAHAHAHAHAHA GAGO KA PUTANGINA MO HAHAHAHAHA
-              </small>
-            </div>
-          </div>
-        </div>
-
-
-        <div class="row chat-item">
-          <div class="col-md-12 col-xs-12">
-            <h6>You</h6>
-            <div class="chat-message">
-              <small>
-                HAHAHAHAHAHAHA GAGO KA PUTANGINA MO HAHAHAHAHA
-              </small>
-            </div>
-          </div>
-        </div>
-
-        
       </div>
     </div>
     <div class="panel-footer">
-      <form>
-        <input type="text" class="form-control" name="">
+      <form id="chat-message">
+        <input type="hidden" class="form-control" name="chatee-name">
+        <input type="hidden" class="form-control" name="chatee-id">
+        <input type="text" class="form-control" name="message">
       </form>
     </div>
   </div>
@@ -175,16 +115,6 @@
 <script type="text/javascript">
 
 $(document).ready(function(){
-  
-  $('#hide-chat').click(function(){
-    if ($('#chat-container').hasClass('hide-chat')) {
-      $(this).html('close')
-      $('#chat-container').removeClass('hide-chat');
-    } else {
-      $(this).html('open')
-      $('#chat-container').addClass('hide-chat');
-    }
-  });
 
   window.WebSocket = window.WebSocket || window.MozWebSocket
   // var connection = new WebSocket('ws://localhost:5000')
@@ -281,6 +211,19 @@ $(document).ready(function(){
         $('#defaultModal').modal('show')
         $('#messageInfo').text(json.message)
         break;
+      case 'message':
+        var html;
+        if (json.chatter_id == '{{ Auth::user()->id }}') {
+          html = '<div class="row chat-item"> <div class="col-md-12 col-xs-12"> <h6>You</h6> <div class="chat-message"> <small>'+json.message+'</small> </div></div></div>'
+          $('#chat-user-' + json.chatee_id).append(html)
+          $('#chat-user-' + json.chatee_id).animate({ scrollTop: $(document).height() }, "slow");
+        }
+        if (json.chatee_id == '{{ Auth::user()->id }}') {
+          html = '<div class="row chat-item"> <div class="col-md-2 col-xs-2"> <div class="avatar-container"> <img src="" class="img-responsive avatar"> </div></div><div class="col-md-10 col-xs-10"> <h6>'+json.chatter_name+'</h6> <div class="chat-message"> <small>'+json.message+'</small> </div></div></div>'
+          $('#chat-user-' +json.chatter_id).append(html)
+          $('#chat-user-' + json.chatter_id).animate({ scrollTop: $(document).height() }, "slow");
+        }
+        break
       default:
         console.log('[Frontend]: Opss... Something\'s wrong here.')
     }
@@ -347,6 +290,49 @@ $(document).ready(function(){
       caller_name: '{{ Auth::user()->name }}'
     }
     connection.send(JSON.stringify(data)) 
+  })
+
+
+  $('#chat-container .panel-heading').click(function(){
+    if ($('#chat-container').hasClass('hide-chat')) {
+      $('#chat-container').removeClass('hide-chat');
+    } else {
+      $('#chat-container').addClass('hide-chat');
+    }
+  });
+
+
+  // Chat
+
+  $('.chat-button').click(function(){
+    var chatee_id = $(this).attr('chatee-id')
+    var chatee_name = $(this).attr('chatee-name')
+    $('#chatee-name').html(chatee_name);
+    $('[name=chatee-name]').val(chatee_name)
+    $('[name=chatee-id]').val(chatee_id)
+    $('.chat-body').attr('id','chat-user-' + chatee_id)
+  });
+
+  $('#chat-message').submit(function(e){
+    if ($('[name=message]').val() != '') {
+      if ($('[name=chatee-id]').val() != '') {
+        var data = {
+          type: 'message',
+          chatee_id: $('[name=chatee-id]').val(),
+          chatee_name: $('[name=chatee-name]').val(),
+          chatter_id: '{{ Auth::user()->id }}',
+          chatter_name: '{{ Auth::user()->name }}',
+          message: $('[name=message]').val(),
+          date: new Date().toLocaleString()
+        }
+        connection.send(JSON.stringify(data))  
+        $('[name=message]').val('')   
+      } else {
+        alert('Please select user')
+      }
+    }
+
+    e.preventDefault();
   })
 
 })
