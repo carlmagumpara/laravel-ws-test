@@ -39,9 +39,9 @@
     <div class="modal-dialog modal-sm" role="document">
       <div class="modal-content">
         <div class="modal-body">
-              <h4>
-                  <span id="user-caller"></span> is calling...
-              </h4>
+            <h4>
+                <span id="user-caller"></span> is calling...
+            </h4>
             <div class="center call-buttons">
               <button type="button" class="btn btn-success accept-button btn-sm" data-dismiss="modal">Accept</button>
               <button type="button" class="btn btn-danger reject-button btn-sm" data-dismiss="modal">Reject</button>
@@ -82,7 +82,7 @@
   </div>
 
 
-  <div class="panel panel-danger hide hide-chat" id="chat-container">
+  <div class="panel panel-danger hide" id="chat-container">
     <div class="panel-heading">
       Chat with <span id="chatee-name"></span>
       <span class="badge pull-right hide chat-badge">0</span>
@@ -90,6 +90,7 @@
     <div class="panel-body">
       <div class="chat-body"></div>
     </div>
+    <small id="who-is-typing" class="hide"></small>
     <div class="panel-footer">
       <form id="chat-message">
         <input type="hidden" class="form-control" name="chatee-name">
@@ -120,6 +121,8 @@ $(document).ready(function(){
   var connection = new WebSocket('wss://ws-test-node.herokuapp.com')
   var chatBadge = 0
   var title = $('title').text()
+  var user_id = '{{ Auth::user()->id }}'
+  var who_is_typing = {}
 
   if (!window.WebSocket) {
     console.log('Sorry, but your browser doesn\'t support WebSocket.')
@@ -180,10 +183,16 @@ $(document).ready(function(){
         console.log('Call Accepted')
         break;
       case 'rejected':
-        $('#callingSignal')[0].pause()
-        $('#callerModal').modal('hide')
-        $('#defaultModal').modal('show')
-        $('#messageInfo').text(json.message)
+        if (user_id == json.callee_id) {
+          $('#calleeModal').modal('hide')
+          $('title').text(title)
+          $('#ringtoneSignal')[0].pause()
+        } else {
+          $('#callingSignal')[0].pause()
+          $('#callerModal').modal('hide')
+          $('#defaultModal').modal('show')
+          $('#messageInfo').text(json.message)
+        }
         break;
       case 'not-answered':
         $('#callingSignal')[0].pause()
@@ -234,8 +243,19 @@ $(document).ready(function(){
             chatBadge = chatBadge + 1
             $('.chat-badge').html(chatBadge).removeClass('hide')
           }
+          $('#who-is-typing').addClass('hide').html('')
         }
-        break
+        break;
+      case 'typing':
+        clearTimeout(who_is_typing[json.chatter_id])
+        delete who_is_typing[json.chatter_id]
+        $('#who-is-typing').removeClass('hide').html(json.chatter_name + ' is typing...')
+        who_is_typing[json.chatter_id] = setTimeout(function(){
+          $('#who-is-typing').addClass('hide').html('')
+          clearTimeout(who_is_typing[json.chatter_id])
+          delete who_is_typing[json.chatter_id]
+        }, 1000);
+        break;
       default:
         console.log('[Frontend]: Opss... Something\'s wrong here.')
     }
@@ -348,6 +368,17 @@ $(document).ready(function(){
 
     e.preventDefault();
   })
+
+  $('[name=message]').keydown(function(){
+      var data = {
+        type: 'typing',
+        chatee_id: $('[name=chatee-id]').val(),
+        chatee_name: $('[name=chatee-name]').val(),
+        chatter_id: '{{ Auth::user()->id }}',
+        chatter_name: '{{ Auth::user()->name }}'
+      }
+      connection.send(JSON.stringify(data))  
+  });
 
 })
 

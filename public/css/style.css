@@ -75,3 +75,9 @@
 #chat-container .chat-item {
 	margin-top: 10px;
 }
+
+#who-is-typing {
+	position: absolute;
+  margin-top: -16px;
+  margin-left: 5px;
+}

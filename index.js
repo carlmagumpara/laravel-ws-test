@@ -93,7 +93,7 @@ wsServer.on('request', function(request) {
           clearTimeout(callTimeouts[data.caller_id])
           delete callTimeouts[data.caller_id]
           removeFromBusyUsers(data.callee_id, data.caller_id)
-          var json = JSON.stringify({ type:'rejected', callee_id: data.callee_id, callee_name: data.callee_name, caller_id: data.caller_id, caller_name: data.caller_name, message: data.callee_name + ' rejected your call.' })
+          var json = JSON.stringify({ type:'rejected', callee_id: data.callee_id, callee_name: data.callee_name, caller_id: data.caller_id, caller_name: data.caller_name, message: data.callee_name + ' declined your call.' })
           for (var i = 0; i < connections.length; i++) {
             if (connections[i][1] == data.caller_id) {
               connections[i][0].sendUTF(json)
@@ -123,7 +123,15 @@ wsServer.on('request', function(request) {
             }
           }
           connection.sendUTF(json)
-        break;
+          break;
+        case 'typing':
+          var json = JSON.stringify({ type:'typing', chatee_id: data.chatee_id, chatee_name: data.chatee_name, chatter_id: data.chatter_id, chatter_name: data.chatter_name, message: data.message })
+          for (var i = 0; i < connections.length; i++) {
+            if (connections[i][1] == data.chatee_id) {
+              connections[i][0].sendUTF(json)
+            }
+          }
+          break;
         default:
           console.log('[Server]: Opss... Something\'s wrong here.')
       }
